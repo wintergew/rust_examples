@@ -1,5 +1,3 @@
-use std::clone;
-
 fn main() {
     let sentence1 = String::from("The quick brown fox");
     let sentence2 = String::from("jumps over the lazy dog");
