@@ -1,51 +1,79 @@
-enum Operator {
-    Add,
-    Subtract,
-    Multiply,
-    Divide,
+use std::io;
+
+enum Operation {
+    Add(f64, f64),
+    Subtract(f64, f64),
+    Multiply(f64, f64),
+    Divide(f64, f64),
 }
 
-fn calculate(operator: Operator, operand1: i32, operand2: i32) -> Option<i32> {
-    match operator {
-        Operator::Add => Some(operand1 + operand2),
-        Operator::Subtract => Some(operand1 - operand2),
-        Operator::Multiply => Some(operand1 * operand2),
-        Operator::Divide => {
-            if operand2 != 0 {
-                Some(operand1 / operand2)
+fn calculate(operation: Operation) -> Result<f64, &'static str> {
+    match operation {
+        Operation::Add(a, b) => Ok(a + b),
+        Operation::Subtract(a, b) => Ok(a - b),
+        Operation::Multiply(a, b) => Ok(a * b),
+        Operation::Divide(a, b) => {
+            if b != 0.0 {
+                Ok(a / b)
             } else {
-                None
+                Err("Cannot divide by zero!")
             }
         }
     }
 }
 
 fn main() {
-    let operand1 = 10;
-    let operand2 = 5;
+    let mut input = String::new();
 
-    let result_addition = calculate(Operator::Add, operand1, operand2);
-    let result_subtraction = calculate(Operator::Subtract, operand1, operand2);
-    let result_multiplication = calculate(Operator::Multiply, operand1, operand2);
-    let result_division = calculate(Operator::Divide, operand1, operand2);
+    println!("Enter the first number:");
+    io::stdin()
+        .read_line(&mut input)
+        .expect("Failed to read input");
+    let operand1: f64 = match input.trim().parse() {
+        Ok(num) => num,
+        Err(_) => {
+            println!("Invalid number");
+            return;
+        }
+    };
 
-    match result_addition {
-        Some(result) => println!("Addition: {}", result),
-        None => println!("Cannot divide by zero!"),
-    }
+    input.clear();
 
-    match result_subtraction {
-        Some(result) => println!("Subtraction: {}", result),
-        None => println!("Cannot divide by zero!"),
-    }
+    println!("Enter the operation (Add, Subtract, Multiply, Divide):");
+    io::stdin()
+        .read_line(&mut input)
+        .expect("Failed to read input");
+    let operation_str = input.trim().to_lowercase();
 
-    match result_multiplication {
-        Some(result) => println!("Multiplication: {}", result),
-        None => println!("Cannot divide by zero!"),
-    }
+    let operation = match operation_str.as_str() {
+        "add" => Operation::Add,
+        "subtract" => Operation::Subtract,
+        "multiply" => Operation::Multiply,
+        "divide" => Operation::Divide,
+        _ => {
+            println!("Invalid operation");
+            return;
+        }
+    };
 
-    match result_division {
-        Some(result) => println!("Division: {}", result),
-        None => println!("Cannot divide by zero!"),
+    input.clear();
+
+    println!("Enter the second number:");
+    io::stdin()
+        .read_line(&mut input)
+        .expect("Failed to read input");
+    let operand2: f64 = match input.trim().parse() {
+        Ok(num) => num,
+        Err(_) => {
+            println!("Invalid number");
+            return;
+        }
+    };
+
+    let result = calculate(operation(operand1, operand2));
+
+    match result {
+        Ok(result) => println!("Result: {}", result),
+        Err(error) => println!("{}", error),
     }
 }
